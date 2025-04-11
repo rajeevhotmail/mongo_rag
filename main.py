@@ -29,6 +29,7 @@ from narrative_stitcher import extract_narrative_and_key_findings
 from narrative_agent import NarrativeAgent
 from weasy_pdf_writer import WeasyPDFWriter
 from urllib.parse import urlparse
+from token_tracker import TokenTracker
 
 # Define questions for each role
 QUESTIONS = {
@@ -210,7 +211,9 @@ def main():
     logger.info("Starting repository analysis")
     try:
         repo_path, repo_info = None, None
+        mongo_uri = "mongodb+srv://rajeevindia:Sherkhan%40123@cluster0.2pec5q4.mongodb.net/rag_db?retryWrites=true&w=majority"
 
+        token_tracker = TokenTracker(mongo_uri)
         if not args.skip_fetch:
             # Fetch the repository
             repo_path, repo_info = fetch_repository(args, logger)
@@ -264,7 +267,8 @@ def main():
             use_local_llm=args.use_local_llm,
             local_llm_path=args.local_llm_path,
             local_llm_type=args.local_llm_type,
-            log_level=args.log_level
+            log_level=args.log_level,
+            token_tracker=token_tracker
 
         )
 
@@ -292,7 +296,8 @@ def main():
             repo_name=report_data["repository"]["name"],
             qa_pairs=report_data["qa_pairs"],
             model=args.narrative_model,
-            syntax_errors=report_data.get("syntax_errors")
+            syntax_errors=report_data.get("syntax_errors"),
+            token_tracker=token_tracker
         )
         report_data["answers"] = report_data.get("qa_pairs", [])
         raw_narrative = agent.build_narrative(report_data)
@@ -303,13 +308,14 @@ def main():
             f.write(raw_narrative)
         if args.include_competitive and report_data["role"].lower() in ["ceo", "sales_manager", "marketing"]:
             from competitive_agent import CompetitiveAgent
-            competitor = CompetitiveAgent(report_data["repository"]["name"])
+            competitor = CompetitiveAgent(report_data["repository"]["name"],token_tracker=token_tracker)
             competitive_section = competitor.analyze()
 
         else:
             competitive_section = None
         # ✅ Generate PDF report
         pdf_path = generate_pdf(narrative, findings, report_data, competitive_section)
+        token_tracker.save_usage(repo_path=args.local_path, role=args.role)
         print(f"PDF saved to: {pdf_path}")
 
     except Exception as e:

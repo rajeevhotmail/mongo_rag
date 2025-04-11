@@ -8,12 +8,13 @@ def strip_markdown(text):
     text = re.sub(r"\*(.*?)\*", r"\1", text)
     return text
 class NarrativeAgent:
-    def __init__(self, role, repo_name, qa_pairs,  model="gpt-4o", syntax_errors=None):
+    def __init__(self, role, repo_name, qa_pairs,  model="gpt-4o", syntax_errors=None, token_tracker=None):
         self.role = role
         self.repo_name = repo_name
         self.qa_pairs = qa_pairs
         self.model = model
         self.syntax_errors = syntax_errors
+        self.token_tracker = token_tracker
 
     def _compose_paragraph(self, question, answer):
         prompt = (
@@ -135,5 +136,6 @@ class NarrativeAgent:
             temperature=0.7,
             max_tokens=2000
         )
-
+        if self.token_tracker:
+            self.token_tracker.record_usage(response.usage)
         return response.choices[0].message.content.strip()

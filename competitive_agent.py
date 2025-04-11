@@ -1,10 +1,12 @@
 from openai import OpenAI
+from token_tracker import TokenTracker
 
 class CompetitiveAgent:
-    def __init__(self, project_name: str, model: str = "gpt-4o"):
+    def __init__(self, project_name: str, model: str = "gpt-4o", token_tracker: TokenTracker = None):
         self.project_name = project_name
         self.model = "gpt-4o"
         self.client = OpenAI()
+        self.token_tracker = token_tracker
 
     def analyze(self) -> str:
         prompt = (
@@ -26,5 +28,6 @@ class CompetitiveAgent:
             ],
             temperature=0.4
         )
-
+        if self.token_tracker:
+            self.token_tracker.record_usage(response.usage)
         return response.choices[0].message.content.strip()

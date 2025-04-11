@@ -104,7 +104,7 @@ class RAGEngine:
     }
 
     def __init__(self, embeddings_dir, repo_info, use_openai, use_local_llm,
-                 local_llm_path, local_llm_type, log_level, qa_model="gpt-3.5-turbo"):
+                 local_llm_path, local_llm_type, log_level, qa_model="gpt-3.5-turbo", token_tracker=None):
         """
         Initialize the RAG engine.
 
@@ -124,6 +124,7 @@ class RAGEngine:
         self.local_llm_path = local_llm_path
         self.local_llm_type = local_llm_type
         self.qa_model = qa_model
+        self.token_tracker = token_tracker
 
         # Load embeddings manager
         self.embedding_manager = EmbeddingsManager(
@@ -868,6 +869,8 @@ class RAGEngine:
                 f.write("=" * 80 + "\n")
             # Log token usage
             usage = response.usage
+            if self.token_tracker:
+                self.token_tracker.record_usage(response.usage)
             self.logger.info(
                 f"Token usage - Prompt: {usage.prompt_tokens}, "
                 f"Completion: {usage.completion_tokens}, "
