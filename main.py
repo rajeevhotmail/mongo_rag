@@ -30,7 +30,7 @@ from narrative_agent import NarrativeAgent
 from weasy_pdf_writer import WeasyPDFWriter
 from urllib.parse import urlparse
 from token_tracker import TokenTracker
-
+from git import Repo
 # Define questions for each role
 QUESTIONS = {
     "programmer": [

@@ -116,7 +116,7 @@ class NarrativeAgent:
 
             prompt += "\nAnalyze what these syntax errors might indicate about code quality and development practices."
 
-        if role.lower() in ["ceo", "sales", "sales_manager", "marketing"]:
+        if role.lower() in ["ceo", "sales", "sales_manager", "marketing", "programmer"]:
             prompt += (
                 f"11. Begin the report with a clearly marked section titled Executive Summary (as a standalone heading, not bold or stylized). "
                 f"Write 3–5 sentences summarizing the project's strategic importance, key strengths, and overall purpose. "

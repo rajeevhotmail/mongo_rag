@@ -65,43 +65,44 @@ class RAGEngine:
 
     # Define question templates for different roles
     QUESTION_TEMPLATES = {
-        "programmer": [
-            "What programming languages are used in this project?",
-            "What is the project's architecture/structure?",
-            "What are the main components/modules of the project?",
-            "What testing framework(s) are used?",
-            "What dependencies does this project have?",
-            "What is the code quality like (comments, documentation, etc.)?",
-            "Are there any known bugs or issues?",
-            "What is the build/deployment process?",
-            "How is version control used in the project?",
-            "What coding standards or conventions are followed?"
-        ],
-        "ceo": [
-            "What is the overall purpose of this project?",
-            "What business problem does this solve?",
-            "What is the target market or user base?",
-            "How mature is the project (stable, beta, etc.)?",
-            "What is the competitive landscape for this project?",
-            "What resources are required to maintain/develop this project?",
-            "What are the potential revenue streams for this project?",
-            "What are the biggest risks associated with this project?",
-            "What metrics should be tracked to measure success?",
-            "What is the roadmap for future development?"
-        ],
-        "sales_manager": [
-            "What problem does this product solve for customers?",
-            "What are the key features and benefits?",
-            "Who is the target customer for this product?",
-            "How does this product compare to competitors?",
-            "What is the current state/version of the product?",
-            "What are the technical requirements for using this product?",
-            "Are there any case studies or success stories?",
-            "What is the pricing model or strategy?",
-            "What are common objections customers might have?",
-            "What support options are available for customers?"
-        ]
-    }
+    "programmer": [
+        "What programming languages and build tools are used in this project?",
+        "How is the codebase structured into packages or modules?",
+        "What are the major classes or components and their responsibilities?",
+        "What testing frameworks or tools are configured and how are they used?",
+        "What are the core dependencies and how are they managed?",
+        "Are there signs of good code quality such as meaningful comments, docstrings, and clean organization?",
+        "Are there syntax errors or unimplemented methods in the codebase?",
+        "How is the project built and deployed (e.g., Maven, Docker, CI/CD)?",
+        "How is version control structured (e.g., branches, tags, commit frequency)?",
+        "What naming conventions and style guides does the code follow?"
+    ],
+    "ceo": [
+        "What is the core objective or function of this project?",
+        "Which business use case or problem is this codebase addressing?",
+        "Who are the intended users or clients of this system?",
+        "How mature is this codebase based on structure, documentation, and testing?",
+        "Does this project have clear competitive advantages or unique features?",
+        "Are there areas that would require long-term investment (maintenance, infrastructure)?",
+        "What components appear reusable or scalable across business verticals?",
+        "Are there known issues or blockers that may pose risks to adoption?",
+        "What KPIs or success metrics can be derived from the code or tests?",
+        "Is there a defined process for future releases or scaling this project?"
+    ],
+    "sales_manager": [
+        "Which customer pain point does this solution directly address?",
+        "What features are clearly visible in the code or documentation?",
+        "What type of clients or industries could benefit from this system?",
+        "How is this product different from what competitors might offer?",
+        "Does the versioning or changelog suggest active development?",
+        "Are there any setup guides, APIs, or integrations that support onboarding?",
+        "Does the repo include any user feedback, case studies, or testimonials?",
+        "What pricing strategies are feasible based on the code structure (modular, usage-based, etc.)?",
+        "Are there known technical limitations or support dependencies?",
+        "What kind of support (issues, documentation, guides) can customers expect post-sale?"
+    ]
+}
+
 
     def __init__(self, embeddings_dir, repo_info, use_openai, use_local_llm,
                  local_llm_path, local_llm_type, log_level, qa_model="gpt-3.5-turbo", token_tracker=None):
@@ -1094,58 +1095,4 @@ class RAGEngine:
         return report_data
 
 
-# Example usage
-if __name__ == "__main__":
-    import argparse
 
-    parser = argparse.ArgumentParser(description="Answer questions about repositories using RAG")
-    parser.add_argument("--embeddings-dir", required=True, help="Directory containing embeddings")
-    parser.add_argument("--repo-info", required=True, help="JSON file with repository info")
-    parser.add_argument("--role", default="programmer", choices=["programmer", "ceo", "sales_manager"],
-                      help="Role perspective for analysis")
-    parser.add_argument("--use-openai", action="store_true", help="Use OpenAI for generation")
-    parser.add_argument("--log-level", default="INFO", choices=["DEBUG", "INFO", "WARNING", "ERROR"],
-                       help="Logging level")
-    parser.add_argument("--question", help="Single question to answer (optional)")
-
-    args = parser.parse_args()
-
-    # Set log level
-    log_level = getattr(logging, args.log_level)
-
-    # Load repo info
-    with open(args.repo_info, 'r', encoding='utf-8') as f:
-        repo_info = json.load(f)
-
-    # Initialize RAG engine
-    rag_engine = RAGEngine(
-        embeddings_dir=dirs["embeddings"],
-        repo_info=repo_info,
-        use_openai=args.use_openai,
-        use_local_llm=args.use_local_llm,
-        local_llm_path=args.local_llm_path,
-        local_llm_type=args.local_llm_type,
-        log_level=log_level
-    )
-
-
-    # Load data
-    if not engine.load_data():
-        print("Failed to load data. Exiting.")
-        exit(1)
-
-    if args.question:
-        # Answer single question
-        result = engine.answer_question(args.question)
-
-        print(f"\nQuestion: {result['question']}")
-        print(f"\nAnswer: {result['answer']}")
-        print(f"\nBased on {len(result['supporting_chunks'])} chunks in {result['processing_time']:.2f}s")
-    else:
-        # Process all questions for the role
-        report_data = engine.generate_report_data(args.role)
-
-        print(f"\nGenerated report data for {args.role} role")
-        print(f"Repository: {report_data['repository']['name']}")
-        print(f"Processed {len(report_data['qa_pairs'])} questions")
-        print(f"Total processing time: {report_data['generation_time']:.2f}s")

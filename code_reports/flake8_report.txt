@@ -1,0 +1,6 @@
+./main.py:112:20: F821 undefined name 'Repo'
+./misc.py:132:68: E999 IndentationError: unindent does not match any outer indentation level
+./rag_engine.py:1122:24: F821 undefined name 'dirs'
+./rag_engine.py:1133:12: F821 undefined name 'engine'
+./rag_engine.py:1139:18: F821 undefined name 'engine'
+./rag_engine.py:1146:23: F821 undefined name 'engine'

@@ -80,7 +80,7 @@ class SyntaxErrorTracker:
         self.errors = []
         self.error_count = 0
 
-    def add_error(self, file_path, language, error_msg, line_number=None, function_name=None):
+    def add_error(self, file_path, language, error_msg, line_number, function_name, metadata=None):
         """
         Record a syntax error.
 
@@ -96,7 +96,8 @@ class SyntaxErrorTracker:
             'language': language,
             'error_msg': error_msg,
             'line_number': line_number,
-            'function_name': function_name
+            'function_name': function_name,
+            "metadata": metadata
         })
         self.error_count += 1
 
@@ -395,17 +396,23 @@ class ContentProcessor:
                     language=language
                 )]
 
-            # Update stats
+            # Update stats safely
             self.stats["files_processed"] += 1
             self.stats["files_by_type"][file_type] += 1
-            self.stats["chunks_created"] += len(chunks)
-            self.stats["chunks_by_type"][file_type] += len(chunks)
 
-            elapsed = time.time() - start_time
-            self.logger.info(
+            if chunks:
+                self.stats["chunks_created"] += len(chunks)
+                self.stats["chunks_by_type"][file_type] += len(chunks)
+                elapsed = time.time() - start_time
+                self.logger.info(
                 f"Processed {file_path} ({file_type}/{language}): "
                 f"created {len(chunks)} chunks in {elapsed:.4f}s"
             )
+            else:
+                self.logger.warning(f"No chunks returned for file: {file_path}")
+
+
+
 
             return chunks
 
@@ -561,6 +568,7 @@ class ContentProcessor:
                 language=LANG_PYTHON,
                 error_msg=str(e),
                 line_number=getattr(e, 'lineno', None)
+
             )
             # Fall back to generic chunking
             return self._chunk_by_size(
@@ -1010,7 +1018,10 @@ class ContentProcessor:
 
                 # Process the file
                 chunks = self.process_file(rel_path)
-                all_chunks.extend(chunks)
+                if chunks:
+                    all_chunks.extend(chunks)
+                else:
+                    self.logger.warning(f"Skipping extension: no chunks for a file.")
 
         # Update final statistics
         elapsed = time.time() - start_time

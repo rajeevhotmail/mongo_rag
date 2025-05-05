@@ -1,0 +1,17 @@
+************* Module misc
+misc.py:132:67: E0001: Parsing failed: 'unindent does not match any outer indentation level (misc, line 132)' (syntax-error)
+************* Module content_processor
+content_processor.py:721:20: E1123: Unexpected keyword argument 'metadata' in method call (unexpected-keyword-arg)
+************* Module rag_engine
+rag_engine.py:1122:23: E0602: Undefined variable 'dirs' (undefined-variable)
+rag_engine.py:1133:11: E0602: Undefined variable 'engine' (undefined-variable)
+rag_engine.py:1139:17: E0602: Undefined variable 'engine' (undefined-variable)
+rag_engine.py:1146:22: E0602: Undefined variable 'engine' (undefined-variable)
+************* Module embeddings_manager
+embeddings_manager.py:377:12: E1120: No value for argument 'x' in method call (no-value-for-parameter)
+************* Module main
+main.py:112:19: E0602: Undefined variable 'Repo' (undefined-variable)
+
+------------------------------------------------------------------
+Your code has been rated at 9.81/10 (previous run: 7.37/10, +2.45)
+
